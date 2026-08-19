@@ -1393,24 +1393,24 @@ void ShaderRecompiler::recompile(const uint8_t* shaderData, const std::string_vi
         {
             auto definition = reinterpret_cast<const Int4Definition*>(definitions);
             for (uint16_t i = 0; i < definition->count; i++)
-            {
-                union
                 {
-                    uint32_t value;
-                    struct
+                    union
                     {
-                        int8_t x;
-                        int8_t y;
-                        int8_t z;
-                        int8_t w;
+                        uint32_t value;
+                        struct
+                        {
+                            int8_t x;
+                            int8_t y;
+                            int8_t z;
+                            int8_t w;
+                        } xyzw;
                     };
-                };
 
-                value = definition->values[i].get();
+                    value = definition->values[i].get();
 
-                println("\tint4 i{} = int4({}, {}, {}, {});",
-                    (definition->registerIndex - 8992) / 4 + i, x, y, z, w);
-            }
+                    println("\tint4 i{} = int4({}, {}, {}, {});",
+                        (definition->registerIndex - 8992) / 4 + i, xyzw.x, xyzw.y, xyzw.z, xyzw.w);
+                }
             definitions += 2;
             definitions += definition->count;
         }
@@ -1502,7 +1502,7 @@ void ShaderRecompiler::recompile(const uint8_t* shaderData, const std::string_vi
             uint32_t code1;
             uint32_t code2;
             uint32_t code3;
-        };
+        } codes;
     };
 
     auto controlFlowCode = code;
@@ -1512,10 +1512,10 @@ void ShaderRecompiler::recompile(const uint8_t* shaderData, const std::string_vi
 
     while (instrAddress < instrSize)
     {
-        code0 = controlFlowCode[0];
-        code1 = controlFlowCode[1] & 0xFFFF;
-        code2 = (controlFlowCode[1] >> 16) | (controlFlowCode[2] << 16);
-        code3 = controlFlowCode[2] >> 16;
+        codes.code0 = controlFlowCode[0];
+        codes.code1 = controlFlowCode[1] & 0xFFFF;
+        codes.code2 = (controlFlowCode[1] >> 16) | (controlFlowCode[2] << 16);
+        codes.code3 = controlFlowCode[2] >> 16;
 
         for (auto& cfInstr : controlFlow)
         {
@@ -1579,10 +1579,10 @@ void ShaderRecompiler::recompile(const uint8_t* shaderData, const std::string_vi
 
     while (instrAddress < instrSize)
     {
-        code0 = controlFlowCode[0];
-        code1 = controlFlowCode[1] & 0xFFFF;
-        code2 = (controlFlowCode[1] >> 16) | (controlFlowCode[2] << 16);
-        code3 = controlFlowCode[2] >> 16;
+        codes.code0 = controlFlowCode[0];
+        codes.code1 = controlFlowCode[1] & 0xFFFF;
+        codes.code2 = (controlFlowCode[1] >> 16) | (controlFlowCode[2] << 16);
+        codes.code3 = controlFlowCode[2] >> 16;
 
         for (auto& cfInstr : controlFlow)
         {
@@ -1733,12 +1733,12 @@ void ShaderRecompiler::recompile(const uint8_t* shaderData, const std::string_vi
                         uint32_t code0;
                         uint32_t code1;
                         uint32_t code2;
-                    };
+                    } codes;
                 };
             
-                code0 = instructionCode[0];
-                code1 = instructionCode[1];
-                code2 = instructionCode[2];
+                codes.code0 = instructionCode[0];
+                codes.code1 = instructionCode[1];
+                codes.code2 = instructionCode[2];
             
                 if ((sequence & 0x1) != 0)
                 {
