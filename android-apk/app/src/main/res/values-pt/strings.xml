@@ -17,6 +17,12 @@
     <string name="mod_manager_error_directory">Não foi possível criar o diretório de configuração: %1$s</string>
     <string name="mod_manager_error_save">Não foi possível salvar o banco de dados de mods: %1$s</string>
     <string name="mod_manager_error_files">Não foi possível abrir o Arquivos do Android.</string>
+    <string name="mod_settings_title">Configurações do mod</string>
+    <string name="mod_settings_open">Configurar %1$s</string>
+    <string name="mod_settings_save">Salvar configurações do mod</string>
+    <string name="mod_settings_saved">Configurações do mod salvas. Reinicie o jogo para aplicá-las.</string>
+    <string name="mod_settings_empty">Este ConfigSchemaFile não contém configurações suportadas.</string>
+    <string name="mod_settings_error">Não foi possível editar as configurações do mod: %1$s</string>
 
     <string name="launcher_title">Unleashed Recomp</string>
     <string name="launcher_subtitle">Verifique a instalação e configure o jogo antes de iniciar.</string>
@@ -68,11 +74,14 @@
     <string name="launcher_install_mod">Instalar um mod (.zip / pasta)</string>
     <string name="install_source_zip">De um arquivo ZIP</string>
     <string name="install_source_folder">De uma pasta</string>
+    <string name="install_source_iso_packages">De pacotes ISO / atualização / DLC</string>
     <string name="install_progress_title">Instalando…</string>
     <string name="install_progress_status">%1$d arquivos copiados, %2$s</string>
     <string name="install_scanning">Lendo a origem…</string>
     <string name="install_cancel">Cancelar</string>
     <string name="install_done_game">Arquivos do jogo instalados. O executável com patch é preparado automaticamente na primeira inicialização, se necessário.</string>
+    <string name="install_done_iso_staged">Pacotes do instalador preparados. Toque em Iniciar jogo para verificar e instalar o jogo base, a atualização de título e os DLCs opcionais.</string>
+    <string name="launcher_install_staged">Os pacotes do instalador estão prontos. Inicie o jogo para verificá-los e instalá-los.</string>
     <string name="install_done_mod">Mods instalados: %1$d. Ative-os no gerenciador de mods.</string>
     <string name="install_cancelled">Instalação cancelada. Os arquivos copiados parcialmente foram mantidos.</string>
     <string name="error_install_failed">Falha na instalação: %1$s</string>
@@ -101,4 +110,19 @@
     <string name="launcher_localization">Localização de fãs</string>
     <string name="launcher_localization_none">Nenhuma (jogo original)</string>
     <string name="launcher_localization_summary">Selecione um pacote opcional em localizations/. Seus arquivos substituem os recursos do idioma base correspondente sem modificar o dump do jogo.</string>
+    <string name="launcher_updates">Atualizações do aplicativo</string>
+    <string name="update_current_version">Versão instalada: %1$s</string>
+    <string name="update_check">Verificar atualizações</string>
+    <string name="update_checking">Verificando atualizações no GitHub…</string>
+    <string name="update_error">Falha ao verificar atualização: %1$s</string>
+    <string name="update_up_to_date">A versão %1$s está atualizada.</string>
+    <string name="update_up_to_date_short">Você já está com a versão mais recente.</string>
+    <string name="update_available">A versão %1$s está disponível.</string>
+    <string name="update_dialog_title">Atualização disponível</string>
+    <string name="update_dialog_message">A versão %1$s (%2$s) está pronta para download.\n\n%3$s</string>
+    <string name="update_later">Mais tarde</string>
+    <string name="update_download">Baixar</string>
+    <string name="update_downloading">Baixando a atualização…</string>
+    <string name="update_download_progress">Baixado %1$s de %2$s</string>
+    <string name="update_ready_to_install">Atualização baixada. Continue no instalador do Android.</string>
 </resources>

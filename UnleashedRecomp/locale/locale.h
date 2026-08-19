@@ -7,7 +7,8 @@ enum class ELanguage : uint32_t
     German,
     French,
     Spanish,
-    Italian
+    Italian,
+    Portuguese
 };
 
 inline std::string g_localeMissing = "<missing string>";
