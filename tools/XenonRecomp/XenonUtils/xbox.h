@@ -247,13 +247,13 @@ typedef struct _XXOVERLAPPED {
         {
             be<uint32_t> Error;
             be<uint32_t> Length;
-        };
+        } Overlapped;
 
         struct
         {
             uint32_t InternalLow;
             uint32_t InternalHigh;
-        };
+        } Internal;
     };
     uint32_t InternalContext;
     be<uint32_t> hEvent;
