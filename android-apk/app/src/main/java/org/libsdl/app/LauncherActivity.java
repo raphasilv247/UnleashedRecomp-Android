@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.DocumentsContract;
@@ -16,6 +17,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Spinner;
@@ -106,17 +109,56 @@ public final class LauncherActivity extends Activity {
     }
 
     private View buildPage() {
-        ScrollView scroll = new ScrollView(this);
-        LinearLayout page = column();
-        page.setPadding(dp(18), dp(18), dp(18), dp(28));
-        scroll.addView(page);
+        FrameLayout root = new FrameLayout(this);
+        root.setLayoutParams(new FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+        root.setBackgroundResource(R.drawable.bg_launcher_gradient);
 
-        TextView title = text(getString(R.string.launcher_title), 28, true);
-        page.addView(title);
-        TextView subtitle = text(getString(R.string.launcher_subtitle), 15, false);
-        subtitle.setTextColor(Color.DKGRAY);
-        subtitle.setPadding(0, dp(3), 0, dp(14));
-        page.addView(subtitle);
+        View shade = new View(this);
+        shade.setBackgroundResource(R.drawable.bg_launcher_side_shade);
+        root.addView(shade, new FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
+
+        ImageView logo = new ImageView(this);
+        logo.setImageResource(R.drawable.logo_unleashed);
+        logo.setAdjustViewBounds(true);
+        logo.setScaleType(ImageView.ScaleType.FIT_START);
+        FrameLayout.LayoutParams logoParams = new FrameLayout.LayoutParams(
+            dp(360), FrameLayout.LayoutParams.WRAP_CONTENT, Gravity.BOTTOM | Gravity.START);
+        logoParams.leftMargin = dp(24);
+        logoParams.bottomMargin = dp(28);
+        root.addView(logo, logoParams);
+
+        TextView version = text(getString(R.string.launcher_subtitle), 12, false);
+        version.setTextColor(getColor(R.color.launcher_text_muted));
+        version.setGravity(Gravity.END);
+        FrameLayout.LayoutParams versionParams = new FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT,
+            Gravity.TOP | Gravity.END);
+        versionParams.topMargin = dp(18);
+        versionParams.rightMargin = dp(24);
+        root.addView(version, versionParams);
+
+        LinearLayout rightColumn = column();
+        FrameLayout.LayoutParams rightParams = new FrameLayout.LayoutParams(
+            dp(440), FrameLayout.LayoutParams.MATCH_PARENT, Gravity.TOP | Gravity.END);
+        rightParams.topMargin = dp(56);
+        rightParams.rightMargin = dp(24);
+        rightParams.bottomMargin = dp(20);
+        root.addView(rightColumn, rightParams);
+
+        TextView title = text(getString(R.string.launcher_title), 30, true);
+        title.setTextColor(getColor(R.color.launcher_text_primary));
+        title.setGravity(Gravity.END);
+        rightColumn.addView(title);
+
+        ScrollView scroll = new ScrollView(this);
+        scroll.setLayoutParams(new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
+        LinearLayout page = column();
+        page.setPadding(0, dp(14), 0, dp(28));
+        scroll.addView(page);
+        rightColumn.addView(scroll);
 
         LinearLayout files = card(R.string.launcher_game_files);
         installStatus = statusText();
@@ -164,7 +206,7 @@ public final class LauncherActivity extends Activity {
         audioPresetSpinner = settingSpinner(audio, R.string.launcher_audio_preset,
             R.array.audio_preset_labels);
         TextView audioHint = text(getString(R.string.launcher_audio_preset_hint), 13, false);
-        audioHint.setTextColor(Color.DKGRAY);
+        audioHint.setTextColor(getColor(R.color.launcher_text_muted));
         audioHint.setPadding(0, dp(4), 0, 0);
         audio.addView(audioHint);
 
@@ -199,11 +241,18 @@ public final class LauncherActivity extends Activity {
         debug.addView(button(R.string.launcher_open_logs, view -> openFiles("transfer")));
 
         playButton = button(R.string.launcher_play, view -> launchGame(false));
-        playButton.setTextSize(18);
+        playButton.setTextSize(19);
+        playButton.setTextColor(getColor(R.color.launcher_bg_dark));
+        GradientDrawable playBg = new GradientDrawable();
+        playBg.setColor(getColor(R.color.launcher_accent_yellow));
+        playBg.setCornerRadius(dp(8));
+        playButton.setBackground(playBg);
+        playButton.setPadding(dp(18), dp(14), dp(18), dp(14));
         LinearLayout.LayoutParams playParams = matchWrap();
-        playParams.topMargin = dp(8);
-        page.addView(playButton, playParams);
-        return scroll;
+        playParams.topMargin = dp(10);
+        rightColumn.addView(playButton, playParams);
+
+        return root;
     }
 
     private void refreshStatuses() {
@@ -868,11 +917,12 @@ public final class LauncherActivity extends Activity {
     private LinearLayout card(int titleId) {
         LinearLayout card = column();
         card.setPadding(dp(14), dp(12), dp(14), dp(12));
-        card.setBackgroundColor(Color.rgb(245, 245, 245));
+        card.setBackgroundResource(R.drawable.bg_status_card);
         LinearLayout.LayoutParams params = matchWrap();
         params.bottomMargin = dp(12);
         card.setLayoutParams(params);
-        TextView title = text(getString(titleId), 19, true);
+        TextView title = text(getString(titleId), 17, true);
+        title.setTextColor(getColor(R.color.launcher_accent_yellow));
         title.setPadding(0, 0, 0, dp(7));
         card.addView(title);
         return card;
@@ -886,7 +936,7 @@ public final class LauncherActivity extends Activity {
     private LinearLayout collapsibleCard(LinearLayout page, int titleId, String stateKey, boolean defaultExpanded) {
         LinearLayout card = column();
         card.setPadding(dp(14), dp(12), dp(14), dp(12));
-        card.setBackgroundColor(Color.rgb(245, 245, 245));
+        card.setBackgroundResource(R.drawable.bg_status_card);
         LinearLayout.LayoutParams params = matchWrap();
         params.bottomMargin = dp(12);
         card.setLayoutParams(params);
@@ -896,7 +946,8 @@ public final class LauncherActivity extends Activity {
         body.setVisibility(expanded ? View.VISIBLE : View.GONE);
 
         final String label = getString(titleId);
-        final TextView title = text(label, 19, true);
+        final TextView title = text(label, 17, true);
+        title.setTextColor(getColor(R.color.launcher_accent_yellow));
         title.setPadding(0, 0, 0, dp(7));
         title.setText((expanded ? "▾  " : "▸  ") + label);
         title.setOnClickListener(view -> {
@@ -914,6 +965,7 @@ public final class LauncherActivity extends Activity {
 
     private Spinner settingSpinner(LinearLayout parent, int labelId, int arrayId) {
         TextView label = text(getString(labelId), 14, true);
+        label.setTextColor(getColor(R.color.launcher_text_secondary));
         parent.addView(label);
         Spinner spinner = new Spinner(this);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, arrayId,
@@ -933,7 +985,8 @@ public final class LauncherActivity extends Activity {
     }
 
     private TextView statusText() {
-        TextView status = text("", 14, false);
+        TextView status = text("", 13, false);
+        status.setTextColor(getColor(R.color.launcher_text_secondary));
         status.setPadding(0, 0, 0, dp(7));
         return status;
     }
@@ -941,6 +994,7 @@ public final class LauncherActivity extends Activity {
     private CheckBox checkBox(int stringId) {
         CheckBox box = new CheckBox(this);
         box.setText(stringId);
+        box.setTextColor(getColor(R.color.launcher_text_secondary));
         return box;
     }
 
@@ -948,6 +1002,12 @@ public final class LauncherActivity extends Activity {
         Button button = new Button(this);
         button.setText(stringId);
         button.setAllCaps(false);
+        button.setTextColor(getColor(R.color.launcher_text_primary));
+        GradientDrawable bg = new GradientDrawable();
+        bg.setColor(getColor(R.color.launcher_card_bg));
+        bg.setCornerRadius(dp(6));
+        bg.setStroke(dp(1), getColor(R.color.launcher_divider));
+        button.setBackground(bg);
         button.setOnClickListener(listener);
         return button;
     }
@@ -956,7 +1016,7 @@ public final class LauncherActivity extends Activity {
         TextView view = new TextView(this);
         view.setText(value);
         view.setTextSize(size);
-        view.setTextColor(Color.rgb(25, 25, 25));
+        view.setTextColor(getColor(R.color.launcher_text_primary));
         if (bold) view.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
         return view;
     }

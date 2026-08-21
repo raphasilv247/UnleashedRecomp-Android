@@ -1,6 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Mantidos por compatibilidade com o tema base do SDL -->
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+
+    <!-- Paleta do novo launcher, estilo Sonic Unleashed (dia/noite) -->
+    <color name="launcher_bg_dark">#0A0E14</color>
+    <color name="launcher_bg_overlay">#CC0A0E14</color>
+    <color name="launcher_card_bg">#33FFFFFF</color>
+    <color name="launcher_card_bg_solid">#1A1F2B</color>
+    <color name="launcher_text_primary">#FFFFFFFF</color>
+    <color name="launcher_text_secondary">#B3FFFFFF</color>
+    <color name="launcher_text_muted">#80FFFFFF</color>
+    <color name="launcher_accent_orange">#FF7A1A</color>
+    <color name="launcher_accent_yellow">#FFC42E</color>
+    <color name="launcher_menu_selected">#33FF7A1A</color>
+    <color name="launcher_status_ok">#4CD97A</color>
+    <color name="launcher_status_warn">#FFC42E</color>
+    <color name="launcher_status_error">#FF5D5D</color>
+    <color name="launcher_divider">#26FFFFFF</color>
 </resources>

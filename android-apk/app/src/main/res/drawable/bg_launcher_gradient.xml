@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Fundo do launcher: gradiente diagonal escuro -> laranja/amarelo (tema dia/noite
+    do Sonic Unleashed). Funciona sozinho sem nenhuma imagem externa.
+
+    Se quiser trocar por uma arte de fundo real (ex: um frame convertido de
+    UnleashedRecompResources/images/installer/install_00X.dds -> .png/.webp),
+    basta:
+      1) colocar o PNG/WEBP em res/drawable/bg_launcher_art.webp
+      2) trocar o <ImageView> do launcher_root (ver LauncherActivity) para
+         apontar para @drawable/bg_launcher_art em vez de usar este gradiente,
+         OU sobrepor os dois (arte por baixo, este gradiente por cima com alpha
+         reduzido) para garantir contraste do menu.
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <gradient
+        android:type="linear"
+        android:angle="115"
+        android:startColor="#050608"
+        android:centerColor="#141A26"
+        android:endColor="#2A1A0E"
+        android:centerX="0.55" />
+</shape>
