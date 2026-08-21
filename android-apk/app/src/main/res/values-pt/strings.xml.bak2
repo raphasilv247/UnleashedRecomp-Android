@@ -111,11 +111,6 @@
     <string name="launcher_open_saves">Abrir pasta de saves</string>
     <string name="launcher_controls_moved">Os controles na tela, a câmera e o direcional foram movidos para o menu de opções do jogo (Entrada). Ajuste-os lá durante o jogo.</string>
     <string name="launcher_force_bc">Forçar texturas BC nativas (desativar transcodificação ETC2; apenas para GPUs com suporte a BC)</string>
-    <string name="launcher_menu_play">Jogar</string>
-    <string name="launcher_menu_install">Instalar jogo</string>
-    <string name="launcher_menu_settings">Configurações</string>
-    <string name="launcher_menu_exit">Sair</string>
-    <string name="launcher_nav_back">Voltar</string>
     <string name="mod_manager_codes">Códigos</string>
     <string name="mod_manager_codes_hint">Patches integrados aplicados na inicialização. Salvos com a lista de mods; reinicie o jogo para aplicar.</string>
     <string name="launcher_localization">Localização de fãs</string>

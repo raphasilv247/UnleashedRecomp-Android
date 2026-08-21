@@ -83,10 +83,6 @@ public final class LauncherActivity extends Activity {
     private SharedPreferences prefs;
     private InstallState lastInstallState;
 
-    private enum Screen { MENU, INSTALL, SETTINGS }
-    private Screen currentScreen = Screen.MENU;
-    private FrameLayout contentContainer;
-
     private static final class InstallState {
         final boolean ready;
         final String message;
@@ -112,15 +108,6 @@ public final class LauncherActivity extends Activity {
         refreshStatuses();
     }
 
-    @Override
-    public void onBackPressed() {
-        if (currentScreen != Screen.MENU) {
-            showScreen(Screen.MENU);
-        } else {
-            super.onBackPressed();
-        }
-    }
-
     private View buildPage() {
         FrameLayout root = new FrameLayout(this);
         root.setLayoutParams(new FrameLayout.LayoutParams(
@@ -142,8 +129,7 @@ public final class LauncherActivity extends Activity {
         logoParams.bottomMargin = dp(28);
         root.addView(logo, logoParams);
 
-        TextView version = text(getString(R.string.update_current_version,
-            UpdateManager.currentVersion(this)), 12, false);
+        TextView version = text(getString(R.string.launcher_subtitle), 12, false);
         version.setTextColor(getColor(R.color.launcher_text_muted));
         version.setGravity(Gravity.END);
         FrameLayout.LayoutParams versionParams = new FrameLayout.LayoutParams(
@@ -153,110 +139,26 @@ public final class LauncherActivity extends Activity {
         versionParams.rightMargin = dp(24);
         root.addView(version, versionParams);
 
-        contentContainer = new FrameLayout(this);
-        FrameLayout.LayoutParams containerParams = new FrameLayout.LayoutParams(
+        LinearLayout rightColumn = column();
+        FrameLayout.LayoutParams rightParams = new FrameLayout.LayoutParams(
             dp(440), FrameLayout.LayoutParams.MATCH_PARENT, Gravity.TOP | Gravity.END);
-        containerParams.topMargin = dp(44);
-        containerParams.rightMargin = dp(24);
-        containerParams.bottomMargin = dp(20);
-        root.addView(contentContainer, containerParams);
+        rightParams.topMargin = dp(56);
+        rightParams.rightMargin = dp(24);
+        rightParams.bottomMargin = dp(20);
+        root.addView(rightColumn, rightParams);
 
-        showScreen(Screen.MENU);
-        return root;
-    }
-
-    private void showScreen(Screen screen) {
-        currentScreen = screen;
-        contentContainer.removeAllViews();
-        View content;
-        switch (screen) {
-            case INSTALL:
-                content = buildInstallScreen();
-                break;
-            case SETTINGS:
-                content = buildSettingsScreen();
-                break;
-            case MENU:
-            default:
-                content = buildMenuScreen();
-                break;
-        }
-        contentContainer.addView(content, new FrameLayout.LayoutParams(
-            FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT));
-        if (screen != Screen.MENU) {
-            refreshStatuses();
-        }
-    }
-
-    // ------------------------------------------------------------------
-    // Tela: Menu principal
-    // ------------------------------------------------------------------
-    private View buildMenuScreen() {
-        lastInstallState = inspectInstallation();
-        boolean playable = lastInstallState.ready || hasStagedGamePackages();
-
-        LinearLayout menu = column();
-        menu.setPadding(0, dp(8), 0, 0);
-
-        TextView playItem = menuItem(playable
-            ? getString(R.string.launcher_menu_play)
-            : getString(R.string.launcher_menu_install), view -> {
-                InstallState current = inspectInstallation();
-                if (current.ready || hasStagedGamePackages()) {
-                    launchGame(false);
-                } else {
-                    showScreen(Screen.INSTALL);
-                }
-            });
-        menu.addView(playItem, matchWrap());
-        menu.addView(menuItem(getString(R.string.launcher_menu_settings),
-            view -> showScreen(Screen.SETTINGS)), matchWrap());
-        menu.addView(menuItem(getString(R.string.launcher_menu_exit),
-            view -> finishAffinity()), matchWrap());
-        return menu;
-    }
-
-    private TextView menuItem(String label, View.OnClickListener listener) {
-        TextView item = text(label, 22, true);
-        item.setGravity(Gravity.END);
-        item.setPadding(dp(20), dp(14), dp(20), dp(14));
-        item.setBackgroundResource(R.drawable.menu_item_background);
-        item.setClickable(true);
-        item.setFocusable(true);
-        item.setOnClickListener(listener);
-        return item;
-    }
-
-    private View navHeader(int titleId) {
-        LinearLayout header = column();
-        TextView back = text("‹  " + getString(R.string.launcher_nav_back), 15, true);
-        back.setTextColor(getColor(R.color.launcher_accent_yellow));
-        back.setPadding(0, 0, 0, dp(10));
-        back.setClickable(true);
-        back.setFocusable(true);
-        back.setOnClickListener(view -> showScreen(Screen.MENU));
-        header.addView(back);
-        TextView title = text(getString(titleId), 22, true);
+        TextView title = text(getString(R.string.launcher_title), 30, true);
         title.setTextColor(getColor(R.color.launcher_text_primary));
-        title.setPadding(0, 0, 0, dp(10));
-        header.addView(title);
-        return header;
-    }
-
-    // ------------------------------------------------------------------
-    // Tela: Instalar jogo
-    // ------------------------------------------------------------------
-    private View buildInstallScreen() {
-        LinearLayout screen = column();
-        screen.addView(navHeader(R.string.launcher_menu_install));
+        title.setGravity(Gravity.END);
+        rightColumn.addView(title);
 
         ScrollView scroll = new ScrollView(this);
         scroll.setLayoutParams(new LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
         LinearLayout page = column();
-        page.setPadding(0, dp(6), 0, dp(20));
+        page.setPadding(0, dp(14), 0, dp(28));
         scroll.addView(page);
-        screen.addView(scroll);
+        rightColumn.addView(scroll);
 
         LinearLayout files = card(R.string.launcher_game_files);
         installStatus = statusText();
@@ -269,37 +171,6 @@ public final class LauncherActivity extends Activity {
         files.addView(button(R.string.launcher_open_saves, view -> openFiles("save")));
         page.addView(files);
 
-        playButton = button(R.string.launcher_play, view -> launchGame(false));
-        playButton.setTextSize(19);
-        playButton.setTextColor(getColor(R.color.launcher_bg_dark));
-        GradientDrawable playBg = new GradientDrawable();
-        playBg.setColor(getColor(R.color.launcher_accent_yellow));
-        playBg.setCornerRadius(dp(8));
-        playButton.setBackground(playBg);
-        playButton.setPadding(dp(18), dp(14), dp(18), dp(14));
-        LinearLayout.LayoutParams playParams = matchWrap();
-        playParams.topMargin = dp(6);
-        page.addView(playButton, playParams);
-
-        return screen;
-    }
-
-    // ------------------------------------------------------------------
-    // Tela: Configurações (seções: Atualizações, Vídeo, Áudio, Interface,
-    // Mods, Depuração)
-    // ------------------------------------------------------------------
-    private View buildSettingsScreen() {
-        LinearLayout screen = column();
-        screen.addView(navHeader(R.string.launcher_menu_settings));
-
-        ScrollView scroll = new ScrollView(this);
-        scroll.setLayoutParams(new LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
-        LinearLayout page = column();
-        page.setPadding(0, dp(6), 0, dp(20));
-        scroll.addView(page);
-        screen.addView(scroll);
-
         LinearLayout updates = card(R.string.launcher_updates);
         updateStatus = statusText();
         updateStatus.setText(getString(R.string.update_current_version, UpdateManager.currentVersion(this)));
@@ -308,7 +179,7 @@ public final class LauncherActivity extends Activity {
         updates.addView(updateButton);
         page.addView(updates);
 
-        LinearLayout graphics = collapsibleCard(page, R.string.launcher_graphics, "expand_graphics", true);
+        LinearLayout graphics = collapsibleCard(page, R.string.launcher_graphics, "expand_graphics", false);
         driverStatus = statusText();
         graphics.addView(driverStatus);
         driverSpinner = settingSpinner(graphics, R.string.launcher_driver,
@@ -369,23 +240,30 @@ public final class LauncherActivity extends Activity {
         debug.addView(diagnosticsStatus);
         debug.addView(button(R.string.launcher_open_logs, view -> openFiles("transfer")));
 
-        return screen;
+        playButton = button(R.string.launcher_play, view -> launchGame(false));
+        playButton.setTextSize(19);
+        playButton.setTextColor(getColor(R.color.launcher_bg_dark));
+        GradientDrawable playBg = new GradientDrawable();
+        playBg.setColor(getColor(R.color.launcher_accent_yellow));
+        playBg.setCornerRadius(dp(8));
+        playButton.setBackground(playBg);
+        playButton.setPadding(dp(18), dp(14), dp(18), dp(14));
+        LinearLayout.LayoutParams playParams = matchWrap();
+        playParams.topMargin = dp(10);
+        rightColumn.addView(playButton, playParams);
+
+        return root;
     }
 
     private void refreshStatuses() {
         lastInstallState = inspectInstallation();
         boolean stagedInstall = hasStagedGamePackages();
-        if (installStatus != null) {
-            installStatus.setText(stagedInstall && !lastInstallState.ready
-                ? getString(R.string.launcher_install_staged)
-                : lastInstallState.message);
-            installStatus.setTextColor(lastInstallState.ready ? getColor(R.color.launcher_status_ok)
-                : stagedInstall ? getColor(R.color.launcher_status_warn) : getColor(R.color.launcher_status_error));
-        }
-        if (playButton != null) {
-            playButton.setEnabled(lastInstallState.ready || stagedInstall);
-            playButton.setAlpha(playButton.isEnabled() ? 1f : 0.5f);
-        }
+        installStatus.setText(stagedInstall && !lastInstallState.ready
+            ? getString(R.string.launcher_install_staged)
+            : lastInstallState.message);
+        installStatus.setTextColor(lastInstallState.ready ? Color.rgb(25, 120, 55)
+            : stagedInstall ? Color.rgb(180, 110, 20) : Color.rgb(180, 45, 35));
+        playButton.setEnabled(lastInstallState.ready || stagedInstall);
 
         File installedMarker = new File(getFilesDir(), "turnip/last_imported_driver.txt");
         File recoveryMarker = new File(getFilesDir(), "turnip/vulkan_startup_state.txt");
@@ -394,28 +272,24 @@ public final class LauncherActivity extends Activity {
             pending += countDriverPackages(importDir);
         }
         String imported = readFirstLine(installedMarker);
-        if (driverStatus != null) {
-            if (recoveryMarker.isFile()) {
-                driverStatus.setText(R.string.launcher_driver_recovery);
-                driverStatus.setTextColor(getColor(R.color.launcher_status_error));
-            } else if (pending > 0) {
-                driverStatus.setText(getString(R.string.launcher_driver_pending, pending));
-                driverStatus.setTextColor(getColor(R.color.launcher_text_muted));
-            } else if (!imported.isEmpty()) {
-                driverStatus.setText(getString(R.string.launcher_driver_installed, imported));
-                driverStatus.setTextColor(getColor(R.color.launcher_text_muted));
-            } else {
-                driverStatus.setText(R.string.launcher_driver_builtin);
-                driverStatus.setTextColor(getColor(R.color.launcher_text_muted));
-            }
+        if (recoveryMarker.isFile()) {
+            driverStatus.setText(R.string.launcher_driver_recovery);
+            driverStatus.setTextColor(Color.rgb(180, 45, 35));
+        } else if (pending > 0) {
+            driverStatus.setText(getString(R.string.launcher_driver_pending, pending));
+            driverStatus.setTextColor(Color.DKGRAY);
+        } else if (!imported.isEmpty()) {
+            driverStatus.setText(getString(R.string.launcher_driver_installed, imported));
+            driverStatus.setTextColor(Color.DKGRAY);
+        } else {
+            driverStatus.setText(R.string.launcher_driver_builtin);
+            driverStatus.setTextColor(Color.DKGRAY);
         }
 
         File log = new File(AppStorage.transferRoot(this), "log.txt");
-        if (diagnosticsStatus != null) {
-            diagnosticsStatus.setText(log.isFile()
-                ? getString(R.string.launcher_log_found, formatBytes(log.length()))
-                : getString(R.string.launcher_log_missing));
-        }
+        diagnosticsStatus.setText(log.isFile()
+            ? getString(R.string.launcher_log_found, formatBytes(log.length()))
+            : getString(R.string.launcher_log_missing));
     }
 
     private InstallState inspectInstallation() {
